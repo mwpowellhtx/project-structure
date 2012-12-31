@@ -131,7 +131,7 @@ namespace ProjectStructure {
                 var oldData = Data;
                 RaisePreviewModified(new PreviewNodeModifiedEventArgs(oldData, value));
                 _io.WriteFile(FilePath, value);
-                Modified.Raise(this, new NodeModifiedEventArgs(oldData, value));
+                RaiseModified(new NodeModifiedEventArgs(oldData, value));
             }
         }
 
@@ -151,7 +151,7 @@ namespace ProjectStructure {
 
             _io.Move(FilePath, newPath);
             FilePath = newPath;
-            Renamed.Raise(this, new NodeRenamedEventArgs(oldPath, FilePath));
+            RaiseRenamed(new NodeRenamedEventArgs(oldPath, FilePath));
         }
 
         public void Move(string newPath) {
@@ -160,7 +160,7 @@ namespace ProjectStructure {
             RaisePreviewMoved(new PreviewNodeMovedEventArgs(FilePath, ultimateNewPath));
             _io.Move(FilePath, ultimateNewPath);
             FilePath = ultimateNewPath;
-            Moved.Raise(this, new NodeMovedEventArgs(oldPath, newPath));
+            RaiseMoved(new NodeMovedEventArgs(oldPath, newPath));
         }
 
 
@@ -170,7 +170,7 @@ namespace ProjectStructure {
             RaisePreviewDeleted(new PreviewNodeDeletedEventArgs());
             _io.Delete(FilePath);
             IsDeleted = true;
-            Deleted.Raise(this, new NodeDeletedEventArgs());
+            RaiseDeleted(new NodeDeletedEventArgs());
         }
 
 

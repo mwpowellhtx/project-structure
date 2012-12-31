@@ -42,6 +42,15 @@ namespace ProjectStructure {
     public class ProjectIO : IProjectIO {
         public event EventHandler<ProjectIOFileLoadedEventArgs> FileLoaded;
 
+        /// <summary>
+        /// Raises the FileLoaded event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseFileLoaded(ProjectIOFileLoadedEventArgs e)
+        {
+            FileLoaded.Raise(this, e);
+        }
+
         readonly string _projectPath;
 
         readonly IDictionary<string, string> _cache = new Dictionary<string, string>();
@@ -98,7 +107,7 @@ namespace ProjectStructure {
 
         public string CachedReadText(string file) {
             CheckPaths(file);
-            FileLoaded.Raise(this, new ProjectIOFileLoadedEventArgs(file));
+            RaiseFileLoaded(new ProjectIOFileLoadedEventArgs(file));
             return _cache.ContainsKey(file)
                        ? _cache[file]
                        : File.ReadAllText(ResolvePath(file));
@@ -106,7 +115,7 @@ namespace ProjectStructure {
 
         public byte[] CachedReadRaw(string file) {
             CheckPaths(file);
-            FileLoaded.Raise(this, new ProjectIOFileLoadedEventArgs(file));
+            RaiseFileLoaded(new ProjectIOFileLoadedEventArgs(file));
             return File.ReadAllBytes(ResolvePath(file));
         }
 
