@@ -21,6 +21,78 @@ namespace ProjectStructure {
         public event EventHandler<NodeMovedEventArgs> Moved;
         public event EventHandler<NodeModifiedEventArgs> Modified;
 
+        /// <summary>
+        /// Raises the PreviewDeleted event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewDeleted(PreviewNodeDeletedEventArgs e)
+        {
+            PreviewDeleted.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewRenamed event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewRenamed(PreviewNodeRenamedEventArgs e)
+        {
+            PreviewRenamed.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewMoved event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewMoved(PreviewNodeMovedEventArgs e)
+        {
+            PreviewMoved.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewModified event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewModified(PreviewNodeModifiedEventArgs e)
+        {
+            PreviewModified.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Deleted event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseDeleted(NodeDeletedEventArgs e)
+        {
+            Deleted.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Renamed event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseRenamed(NodeRenamedEventArgs e)
+        {
+            Renamed.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Moved event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseMoved(NodeMovedEventArgs e)
+        {
+            Moved.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Modified event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseModified(NodeModifiedEventArgs e)
+        {
+            Modified.Raise(this, e);
+        }
+
         readonly IProjectIO _io;
 
         //This remains forever empty
@@ -57,7 +129,7 @@ namespace ProjectStructure {
             }
             set {
                 var oldData = Data;
-                PreviewModified.RaiseAndValidate(this, new PreviewNodeModifiedEventArgs(oldData, value));
+                RaisePreviewModified(new PreviewNodeModifiedEventArgs(oldData, value));
                 _io.WriteFile(FilePath, value);
                 Modified.Raise(this, new NodeModifiedEventArgs(oldData, value));
             }
@@ -75,7 +147,7 @@ namespace ProjectStructure {
             var oldPath = FilePath;
             var newPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(FilePath), newName);
 
-            PreviewRenamed.RaiseAndValidate(this, new PreviewNodeRenamedEventArgs(oldPath, newPath));
+            RaisePreviewRenamed(new PreviewNodeRenamedEventArgs(oldPath, newPath));
 
             _io.Move(FilePath, newPath);
             FilePath = newPath;
@@ -85,7 +157,7 @@ namespace ProjectStructure {
         public void Move(string newPath) {
             var oldPath = FilePath;
             var ultimateNewPath = System.IO.Path.Combine(newPath, System.IO.Path.GetFileName(FilePath));
-            PreviewMoved.RaiseAndValidate(this, new PreviewNodeMovedEventArgs(FilePath, ultimateNewPath));
+            RaisePreviewMoved(new PreviewNodeMovedEventArgs(FilePath, ultimateNewPath));
             _io.Move(FilePath, ultimateNewPath);
             FilePath = ultimateNewPath;
             Moved.Raise(this, new NodeMovedEventArgs(oldPath, newPath));
@@ -95,7 +167,7 @@ namespace ProjectStructure {
         public bool IsDeleted { get; private set; }
 
         public void Delete() {
-            PreviewDeleted.RaiseAndValidate(this, new PreviewNodeDeletedEventArgs());
+            RaisePreviewDeleted(new PreviewNodeDeletedEventArgs());
             _io.Delete(FilePath);
             IsDeleted = true;
             Deleted.Raise(this, new NodeDeletedEventArgs());

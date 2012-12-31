@@ -32,6 +32,87 @@ namespace ProjectStructure {
         public event EventHandler<NodeMovedEventArgs> Moved;
         public event EventHandler<NodeModifiedEventArgs> Modified;
 
+        /// <summary>
+        /// Raises the Refreshed event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseRefreshed(DirectoryRefreshedEventArgs e)
+        {
+            Refreshed.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewDeleted event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewDeleted(PreviewNodeDeletedEventArgs e)
+        {
+            PreviewDeleted.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewRenamed event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewRenamed(PreviewNodeRenamedEventArgs e)
+        {
+            PreviewRenamed.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewMoved event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewMoved(PreviewNodeMovedEventArgs e)
+        {
+            PreviewMoved.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the PreviewModified event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaisePreviewModified(PreviewNodeModifiedEventArgs e)
+        {
+            PreviewModified.RaiseAndValidate(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Deleted event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseDeleted(NodeDeletedEventArgs e)
+        {
+            Deleted.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Renamed event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseRenamed(NodeRenamedEventArgs e)
+        {
+            Renamed.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Moved event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseMoved(NodeMovedEventArgs e)
+        {
+            Moved.Raise(this, e);
+        }
+
+        /// <summary>
+        /// Raises the Modified event.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void RaiseModified(NodeModifiedEventArgs e)
+        {
+            Modified.Raise(this, e);
+        }
+
         readonly IProjectIO _io;
         readonly INodeFactory _nodeFactory;
         readonly bool _isRoot;
@@ -91,10 +172,10 @@ namespace ProjectStructure {
         }
 
         public void Delete() {
-            PreviewDeleted.RaiseAndValidate(this, new PreviewNodeDeletedEventArgs());
+            RaisePreviewDeleted(new PreviewNodeDeletedEventArgs());
             _io.Delete(_dirpath);
             IsDeleted = true;
-            Deleted.Raise(this, new NodeDeletedEventArgs());
+            RaiseDeleted(new NodeDeletedEventArgs());
         }
 
 
@@ -102,7 +183,7 @@ namespace ProjectStructure {
             if (newName == Name) return;
             var oldpath = _dirpath;
             var rpath = RenamePath(newName);
-            PreviewRenamed.RaiseAndValidate(this, new PreviewNodeRenamedEventArgs(oldpath, rpath));
+            RaisePreviewRenamed(new PreviewNodeRenamedEventArgs(oldpath, rpath));
             _io.Move(_dirpath, rpath);
             _dirpath = rpath;
 
@@ -110,14 +191,14 @@ namespace ProjectStructure {
                 TakeOwnership(child);
             }
 
-            Renamed.Raise(this, new NodeRenamedEventArgs(oldpath, _dirpath));
+            RaiseRenamed(new NodeRenamedEventArgs(oldpath, _dirpath));
         }
 
         public void Move(string newPath) {
             var ultimateNewPath = System.IO.Path.Combine(newPath, System.IO.Path.GetFileName(_dirpath));
 
             var oldPath = Path;
-            PreviewMoved.RaiseAndValidate(this, new PreviewNodeMovedEventArgs(Path,ultimateNewPath));
+            RaisePreviewMoved(new PreviewNodeMovedEventArgs(Path,ultimateNewPath));
 
             _io.Move(_dirpath, ultimateNewPath);
 
@@ -126,12 +207,12 @@ namespace ProjectStructure {
             foreach (var child in _children) {
                 TakeOwnership(child);
             }
-            Moved.Raise(this, new NodeMovedEventArgs(oldPath,Path));
+            RaiseMoved(new NodeMovedEventArgs(oldPath,Path));
         }
 
         public void Refresh() {
             LoadFilesAndDirectories();
-            Refreshed.Raise(this, new DirectoryRefreshedEventArgs(this));
+            RaiseRefreshed(new DirectoryRefreshedEventArgs(this));
         }
 
         public string Path {
